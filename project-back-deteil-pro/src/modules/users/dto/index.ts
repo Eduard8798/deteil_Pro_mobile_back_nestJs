@@ -1,7 +1,7 @@
 import {IsString} from "class-validator";
 
 export class CreateUserDTO {
-   @IsString()
+    @IsString()
     firstName: string
 
     @IsString()

@@ -17,7 +17,7 @@ import {SequelizeModule} from '@nestjs/sequelize'
             useFactory: (configService : ConfigService) => ({
                 dialect: 'postgres',
                 host: configService.get('db_host'),
-                port: configService.get('db_port'),
+                port: Number(configService.get('db_port')),
                 username: configService.get('db_user'),
                 password:configService.get('db_password'),
                 database: configService.get('db_name'),
