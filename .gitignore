@@ -1,1 +1,76 @@
-.idea
+# =====================
+# IDE
+# =====================
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# =====================
+# Node.js
+# =====================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =====================
+# NestJS build
+# =====================
+dist/
+build/
+
+# =====================
+# Environment variables
+# =====================
+.env
+.env.*
+!.env.example
+
+# =====================
+# Logs
+# =====================
+logs/
+*.log
+
+# =====================
+# OS files
+# =====================
+.DS_Store
+Thumbs.db
+
+# =====================
+# Coverage
+# =====================
+coverage/
+
+# =====================
+# Tests
+# =====================
+*.spec.ts
+*.test.ts
+
+# =====================
+# Temporary / cache
+# =====================
+.tmp/
+.cache/
+.eslintcache
+
+# =====================
+# Prisma (если используешь)
+# =====================
+prisma/dev.db
+prisma/*.db
+prisma/*.db-journal
+
+# =====================
+# Docker
+# =====================
+.dockerignore
+
+# =====================
+# Others
+# =====================
+*.tgz
