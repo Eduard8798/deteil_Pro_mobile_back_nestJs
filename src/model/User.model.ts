@@ -1,12 +1,5 @@
-import {
-    Table,
-    Column,
-    Model,
-    DataType,
-    HasMany,
-    Default,
-} from 'sequelize-typescript';
-import { ServiceRequest } from './ServiceRequest.model';
+import {BelongsTo, Column, DataType, Default, ForeignKey, Model, Table,} from 'sequelize-typescript';
+import {Order} from "./Order.model";
 
 export enum UserRole {
     ADMIN = 'ADMIN',
@@ -15,7 +8,7 @@ export enum UserRole {
 
 @Table({
     tableName: 'users',
-    timestamps: true,
+
 })
 export class User extends Model<User> {
 
@@ -24,7 +17,7 @@ export class User extends Model<User> {
         primaryKey: true,
         autoIncrement: true,
     })
-    declare    id: number;
+    declare id: number;
 
     @Column({
         type: DataType.STRING,
@@ -50,6 +43,14 @@ export class User extends Model<User> {
     })
     declare role: UserRole;
 
-    @HasMany(() => ServiceRequest)
-    declare requests: ServiceRequest[];
+    @ForeignKey(() => Order)
+    @Column({
+        type: DataType.INTEGER,
+        allowNull: false,
+    })
+    declare service_id: number;
+
+    @BelongsTo(() => Order)
+    declare service: Order;
 }
+

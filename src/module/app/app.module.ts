@@ -6,8 +6,8 @@ import configurations from "../../configurations";
 import {SequelizeModule} from "@nestjs/sequelize";
 import {UsersModule} from "../users/users.module";
 import {User} from "../../model/User.model";
-import {Service} from "../../model/Service.model";
-import {ServiceRequest} from "../../model/ServiceRequest.model";
+import {Order} from "../../model/Order.model";
+import {OrderModule} from "../order/order.module";
 
 @Module({
     imports: [ConfigModule.forRoot({
@@ -26,12 +26,16 @@ import {ServiceRequest} from "../../model/ServiceRequest.model";
                 database: configService.get('db_name'),
                 synchronize: true,
                 autoLoadModels: true,
-                models:[User,Service,ServiceRequest]
+                models:[User,Order,]
 
 
             })
         }),
         UsersModule,
+        OrderModule
+
+
+
     ],
     controllers: [AppController],
     providers: [AppService],
