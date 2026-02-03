@@ -6,11 +6,19 @@ export enum UserRole {
     USER = 'USER',
 }
 
+interface UserCreationAttrs {
+    name?: string,
+    phone: string,
+    hashPassword: string,
+    role?: UserRole,
+    service_id: number
+}
+
 @Table({
     tableName: 'users',
 
 })
-export class User extends Model<User> {
+export class User extends Model<User, UserCreationAttrs> {
 
     @Column({
         type: DataType.INTEGER,
@@ -19,15 +27,10 @@ export class User extends Model<User> {
     })
     declare id: number;
 
-    @Column({
-        type: DataType.STRING,
-        allowNull: true,
-    })
-    hashPassword: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false,
+        allowNull: true,
     })
     declare name: string;
 
@@ -37,9 +40,17 @@ export class User extends Model<User> {
     })
     declare phone: string;
 
+    @Column({
+        type: DataType.STRING,
+        allowNull: false,
+    })
+    hashPassword: string;
+
     @Default(UserRole.USER)
     @Column({
         type: DataType.ENUM(...Object.values(UserRole)),
+        allowNull: true,
+        defaultValue: UserRole.USER
     })
     declare role: UserRole;
 
