@@ -1,12 +1,19 @@
 import {Column, DataType, HasMany, Model, Table} from "sequelize-typescript";
 import {User} from "./User.model";
 
+
+interface OrderCreateAttrs {
+    phone : string,
+    message:string,
+    url_photo:string;
+}
+
 @Table({
     tableName: 'order',
 
 })
 
-export class Order extends Model <Order> {
+export class Order extends Model <Order, OrderCreateAttrs> {
 
     @Column({
         type: DataType.INTEGER,

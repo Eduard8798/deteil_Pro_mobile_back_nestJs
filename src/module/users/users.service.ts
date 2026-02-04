@@ -31,15 +31,4 @@ export class UsersService {
     }
 }
 
-// async createUser(dto: CreateUserDTO): Promise<User> {
-//
-//     const hashedPassword = await this.hashPassword(dto.password);
-//
-//     return this.userRepository.create({
-//         firstName: dto.firstName,
-//         userName: dto.userName,
-//         email: dto.email,
-//         password: hashedPassword,
-//     });
-//
-// }
+
