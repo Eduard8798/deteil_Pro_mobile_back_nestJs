@@ -9,6 +9,7 @@ import {SequelizeModule} from "@nestjs/sequelize";
   providers: [UsersService],
   imports:[
       SequelizeModule.forFeature([User])
-  ]
+  ],
+    exports:[UsersService]
 })
 export class UsersModule {}

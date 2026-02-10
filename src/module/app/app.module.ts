@@ -8,6 +8,7 @@ import {UsersModule} from "../users/users.module";
 import {User} from "../../model/User.model";
 import {Order} from "../../model/Order.model";
 import {OrderModule} from "../order/order.module";
+import {AuthModule} from "../auth/auth.module";
 
 @Module({
     imports: [ConfigModule.forRoot({
@@ -32,7 +33,8 @@ import {OrderModule} from "../order/order.module";
             })
         }),
         UsersModule,
-        OrderModule
+        OrderModule,
+        AuthModule,
 
 
 

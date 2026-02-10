@@ -10,16 +10,15 @@ export class UsersService {
     constructor(@InjectModel(User) private readonly userRepository: typeof User) {
     }
 
-    async hashPassword(password: string) : Promise<string> {
+    async hashPassword(password: string): Promise<string> {
         try {
             return bcrypt.hash(password, 4)
-        }
-        catch (e){
+        } catch (e) {
             throw new Error(e)
         }
     }
 
-    async createUser (dto : CreateUserDTO) {
+    async createUser(dto: CreateUserDTO) {
 
         const hashPassword = await this.hashPassword(dto.password);
 
@@ -28,6 +27,13 @@ export class UsersService {
             hashPassword: hashPassword
         });
 
+    }
+
+    async getUserByPhone(phone: string) {
+        const user = await this.userRepository.findOne(
+            {where: {phone}, include: {all: true}}
+        )
+        return user;
     }
 }
 

@@ -44,7 +44,7 @@ export class User extends Model<User, UserCreationAttrs> {
         type: DataType.STRING,
         allowNull: false,
     })
-    hashPassword: string;
+    declare hashPassword: string;
 
     @Default(UserRole.USER)
     @Column({

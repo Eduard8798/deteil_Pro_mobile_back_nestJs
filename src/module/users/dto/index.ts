@@ -21,3 +21,8 @@ export class CreateUserDTO {
     service_id: number;
 
 }
+
+export class LoginDto {
+    phone: string;
+    password: string;
+}
