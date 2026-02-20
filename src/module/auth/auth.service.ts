@@ -10,7 +10,7 @@ export interface JwtPayload {
     name: string;
     phone: string;
     role: UserRole;
-    service_id: number;
+
 }
 
 @Injectable()
@@ -20,12 +20,9 @@ export class AuthService {
     }
 
 
-    // async login(userDto: CreateUserDTO) {
-    //     const user = this.validateUser(userDto)
-    //     return this.generateToken(await user)
-    // }
+
     async login(loginDto: LoginDto) {
-        console.log('loginMethod - loginDataDTO:',loginDto)
+
         const user = this.validateUser(loginDto)
         return this.generateToken(await user)
     }
@@ -44,12 +41,13 @@ export class AuthService {
     }
 
     private generateToken(user: JwtPayload) {
-        console.log('generateTokenMethod - user:',user)
+
         const payload = {
+            id:user.id,
             name: user.name,
             phone: user.phone,
             role: user.role,
-            id_service: user.service_id
+
         }
         return {
             token: this.jwtService.sign(payload)
@@ -59,11 +57,10 @@ export class AuthService {
     private async validateUser(loginDto: LoginDto) {
         const user = await this.userService.getUserByPhone(loginDto.phone);
 
-        console.log('validateUserMethod - validateUserDataDTO:',loginDto)
+
 
         if (!user || !user.hashPassword) {
-            console.log("user: - ",user)
-            console.log("user.hashPassword: - ",user?.hashPassword)
+
             throw new UnauthorizedException({message: 'uncorrected data'})
         }
         const passwordEquals = await bcrypt.compare(
@@ -72,7 +69,7 @@ export class AuthService {
         if (!passwordEquals) {
             throw new UnauthorizedException({message: 'uncorrected number or password'})
         }
-        console.log('validateUserMethoduser - user:',user)
+
         return user;
     }
 }

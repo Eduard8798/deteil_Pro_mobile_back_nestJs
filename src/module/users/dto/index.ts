@@ -17,12 +17,27 @@ export class CreateUserDTO {
     @IsEnum(UserRole)
     role?: UserRole;
 
-    @IsInt()
-    service_id: number;
 
 }
 
 export class LoginDto {
     phone: string;
     password: string;
+}
+
+export class UpdateUserDTO {
+
+    @IsString()
+    @IsNotEmpty()
+    name: string;
+
+    @IsPhoneNumber()
+    phone: string;
+
+
+}
+
+export class ChangeRoleDto {
+    userId: number;
+    role: UserRole;
 }

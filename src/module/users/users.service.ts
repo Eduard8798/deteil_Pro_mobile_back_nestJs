@@ -2,7 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {User} from "../../model/User.model";
 import {InjectModel} from "@nestjs/sequelize";
 import * as bcrypt from 'bcrypt';
-import {CreateUserDTO} from "./dto";
+import {CreateUserDTO, UpdateUserDTO} from "./dto";
 
 @Injectable()
 export class UsersService {
@@ -34,6 +34,41 @@ export class UsersService {
             {where: {phone}, include: {all: true}}
         )
         return user;
+    }
+
+    async getOrderList(id: number) {
+
+        const user = await this.userRepository.findOne({
+            where: {id: id}, include: {all: true}
+        })
+        return {
+            name: user?.name,
+            // service: user?.service
+        };
+    }
+
+    async updateUser(dto: UpdateUserDTO, updateUserId: number) {
+        await this.userRepository.update(dto, {
+            where: {id: updateUserId}
+        })
+        const updateUser = await this.userRepository.findByPk(updateUserId)
+        return updateUser;
+    }
+
+    async deleteUser(UserId: number,id : number) {
+
+        const admin = await this.userRepository.findByPk(UserId)
+
+        if (admin?.role === 'ADMIN'){
+            await this.userRepository.destroy({
+                where: {id: id}
+            })
+        }
+        else {
+            return {message: 'you can`t delete user , because you are not admin'}
+        }
+
+        return {message: "delete done!"}
     }
 }
 
