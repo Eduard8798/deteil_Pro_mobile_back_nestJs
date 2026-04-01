@@ -1,5 +1,5 @@
-import {Injectable} from '@nestjs/common';
-import {User} from "../../model/User.model";
+import {BadRequestException, Injectable, NotFoundException} from '@nestjs/common';
+import {User, UserRole} from "../../model/User.model";
 import {InjectModel} from "@nestjs/sequelize";
 import * as bcrypt from 'bcrypt';
 import {CreateUserDTO, UpdateUserDTO} from "./dto";
@@ -55,20 +55,43 @@ export class UsersService {
         return updateUser;
     }
 
-    async deleteUser(UserId: number,id : number) {
+    async deleteUser(UserId: number, id: number) {
 
         const admin = await this.userRepository.findByPk(UserId)
 
-        if (admin?.role === 'ADMIN'){
+        if (admin?.role === 'ADMIN') {
             await this.userRepository.destroy({
                 where: {id: id}
             })
-        }
-        else {
+        } else {
             return {message: 'you can`t delete user , because you are not admin'}
         }
 
         return {message: "delete done!"}
+    }
+
+    async changeRole(
+        targetUserId: number, newRole: UserRole, currentUserId: number): Promise<User> {
+
+        const user = await this.userRepository.findByPk(targetUserId);
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        if (!Object.values(UserRole).includes(newRole)) {
+            throw new BadRequestException('Invalid role');
+        }
+
+
+        if (targetUserId === currentUserId && newRole !== UserRole.ADMIN) {
+            throw new BadRequestException('You cannot downgrade yourself');
+        }
+
+        user.role = newRole;
+        await user.save();
+
+        return user;
     }
 }
 

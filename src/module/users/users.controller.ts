@@ -1,7 +1,9 @@
 import {Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards} from '@nestjs/common';
 import {UsersService} from "./users.service";
-import {CreateUserDTO, UpdateUserDTO} from "./dto";
+import {ChangeRoleDto, CreateUserDTO, UpdateUserDTO} from "./dto";
 import {JwtAuthGuard} from "../../guards/jwt-guard";
+import {UserRole} from "../../model/User.model";
+import {RolesGuard} from "../../guards/role-guard";
 
 @Controller('users')
 export class UsersController {
@@ -34,6 +36,19 @@ export class UsersController {
                 @Param('id') id : number) {
         const deleteUserId = req.user.id;
         return this.userService.deleteUser(deleteUserId,id);
+    }
+
+    @UseGuards(JwtAuthGuard, new RolesGuard(UserRole.ADMIN))
+    @Patch('role')
+    async changeRole(
+        @Body() dto: ChangeRoleDto,
+        @Req() req,
+    ) {
+        return this.userService.changeRole(
+            dto.userId,
+            dto.role,
+            req.user.id,
+        );
     }
 
 

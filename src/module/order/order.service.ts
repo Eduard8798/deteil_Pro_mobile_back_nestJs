@@ -28,8 +28,19 @@ export class OrderService {
     }
 
     async getOrdes(user_id : number) {
-        return await this.orderRepository.findAll({
-            where: {user_id}, include: {all: true},
-        });
+        const roleUser = await this.orderRepository.findByPk(user_id)
+
+        if (roleUser?.user.role === 'ADMIN'){
+            return await this.orderRepository.findAll({
+
+            })
+        }
+        else {
+            return await this.orderRepository.findAll({
+                where: {user_id}, include: {all: true},
+            });
+        }
+
+
     }
 }
