@@ -15,63 +15,88 @@ export interface JwtPayload {
 
 @Injectable()
 export class AuthService {
-    constructor(private readonly userService: UsersService,
-                private jwtService: JwtService) {
+  constructor(
+    private readonly userService: UsersService,
+    private jwtService: JwtService,
+  ) {}
+
+  async login(loginDto: LoginDto) {
+    const user = this.validateUser(loginDto);
+    return this.generateToken(await user);
+  }
+
+  async registration(userDto: CreateUserDTO) {
+    const candidate = await this.userService.getUserByPhone(userDto.phone);
+    if (candidate) {
+      throw new HttpException(
+        'a user with that name already exists',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const user = await this.userService.createUser({
+      ...userDto,
+    });
+    return this.generateToken(user);
+  }
+
+  private generateToken(user: JwtPayload) {
+    const payload = {
+      id: user.id,
+      name: user.name,
+      phone: user.phone,
+      role: user.role,
+    };
+    const accessToken = this.jwtService.sign(payload, {
+      secret: 'secret_jwt',
+      expiresIn: '1m',
+    });
+
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: 'refresh_jwt',
+      expiresIn: '1d',
+    });
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async refresh(refreshToken: string) {
+    try {
+      const payload = this.jwtService.verify(refreshToken, {
+        secret: 'refresh_jwt',
+      });
+
+      const user = await this.userService.getUserByPhone(payload.phone);
+
+      if (!user) {
+        throw new UnauthorizedException();
+      }
+
+      return this.generateToken(user);
+    } catch {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+  }
+
+  private async validateUser(loginDto: LoginDto) {
+    const user = await this.userService.getUserByPhone(loginDto.phone);
+
+    if (!user || !user.hashPassword) {
+      throw new UnauthorizedException({ message: 'uncorrected data' });
+    }
+    const passwordEquals = await bcrypt.compare(
+      loginDto.password,
+      user.hashPassword,
+    );
+    if (!passwordEquals) {
+      throw new UnauthorizedException({
+        message: 'uncorrected number or password',
+      });
     }
 
-
-
-    async login(loginDto: LoginDto) {
-
-        const user = this.validateUser(loginDto)
-        return this.generateToken(await user)
-    }
-
-
-    async registration(userDto: CreateUserDTO) {
-        const candidate = await this.userService.getUserByPhone(userDto.phone);
-        if (candidate) {
-            throw new HttpException('a user with that name already exists', HttpStatus.BAD_REQUEST)
-        }
-        const user = await this.userService.createUser({
-            ...userDto,
-
-        })
-        return this.generateToken(user)
-    }
-
-    private generateToken(user: JwtPayload) {
-
-        const payload = {
-            id:user.id,
-            name: user.name,
-            phone: user.phone,
-            role: user.role,
-
-        }
-        return {
-            token: this.jwtService.sign(payload)
-        }
-    }
-
-    private async validateUser(loginDto: LoginDto) {
-        const user = await this.userService.getUserByPhone(loginDto.phone);
-
-
-
-        if (!user || !user.hashPassword) {
-
-            throw new UnauthorizedException({message: 'uncorrected data'})
-        }
-        const passwordEquals = await bcrypt.compare(
-            loginDto.password, user.hashPassword
-        );
-        if (!passwordEquals) {
-            throw new UnauthorizedException({message: 'uncorrected number or password'})
-        }
-
-        return user;
-    }
+    return user;
+  }
 }
 
 
