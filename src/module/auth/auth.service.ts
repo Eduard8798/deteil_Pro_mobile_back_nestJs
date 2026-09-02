@@ -1,16 +1,21 @@
-import {HttpException, HttpStatus, Injectable, UnauthorizedException} from '@nestjs/common';
-import {CreateUserDTO, LoginDto} from "../users/dto";
-import {UsersService} from "../users/users.service";
-import {JwtService} from "@nestjs/jwt";
-import {UserRole} from "../../model/User.model";
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { CreateUserDTO, LoginDto } from '../users/dto';
+import { UsersService } from '../users/users.service';
+import { JwtService } from '@nestjs/jwt';
+import { UserRole } from '../../model/User.model';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 
 export interface JwtPayload {
-    id: number;
-    name: string;
-    phone: string;
-    role: UserRole;
-
+  id: number;
+  name: string;
+  phone: string;
+  role: UserRole;
 }
 
 @Injectable()
@@ -18,6 +23,7 @@ export class AuthService {
   constructor(
     private readonly userService: UsersService,
     private jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   async login(loginDto: LoginDto) {
@@ -47,13 +53,13 @@ export class AuthService {
       role: user.role,
     };
     const accessToken = this.jwtService.sign(payload, {
-      secret: 'secret_jwt',
-      expiresIn: '1m',
+      secret: this.configService.getOrThrow<string>('secret_jwt'),
+      expiresIn: '1d',
     });
 
     const refreshToken = this.jwtService.sign(payload, {
-      secret: 'refresh_jwt',
-      expiresIn: '1d',
+      secret: this.configService.getOrThrow<string>('refresh_jwt'),
+      expiresIn: '7d',
     });
     return {
       accessToken,
@@ -64,7 +70,7 @@ export class AuthService {
   async refresh(refreshToken: string) {
     try {
       const payload = this.jwtService.verify(refreshToken, {
-        secret: 'refresh_jwt',
+        secret: this.configService.getOrThrow<string>('refresh_jwt'),
       });
 
       const user = await this.userService.getUserByPhone(payload.phone);
@@ -98,5 +104,3 @@ export class AuthService {
     return user;
   }
 }
-
-

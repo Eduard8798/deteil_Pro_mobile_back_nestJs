@@ -59,7 +59,7 @@ coverage/
 .eslintcache
 
 # =====================
-# Prisma (если используешь)
+# Prisma (if used)
 # =====================
 prisma/dev.db
 prisma/*.db

@@ -1,7 +1,7 @@
 {
   "name": "deteil_Pro_mobile_back_nestJs",
   "version": "0.0.1",
-  "description": "",
+  "description": "Backend API for the Detail Pro mobile app: authentication, users, and detailing orders.",
   "author": "",
   "private": true,
   "license": "UNLICENSED",

@@ -1,98 +1,235 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Detail Pro Mobile API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend API for the Detail Pro mobile app. The service handles user registration and authentication, JWT tokens, user profile operations, and detailing orders.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+The displayed API version is resolved from `API_VERSION`, then from `package.json`. Current package version: `0.0.1`.
 
-## Description
+## Features
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- User registration and login by phone number.
+- `accessToken` and `refreshToken` issuing.
+- Access token refresh through a refresh token.
+- User profile retrieval and update.
+- Detailing order creation, retrieval, and update.
+- Admin-only user deletion.
+- Swagger UI with Bearer JWT authorization.
 
-## Project setup
+## Tech Stack
 
-```bash
-$ npm install
+- Node.js + TypeScript
+- NestJS 11
+- PostgreSQL
+- Sequelize + sequelize-typescript
+- Passport JWT
+- Swagger/OpenAPI
+- Docker Compose for the local database
+
+## Requirements
+
+- Node.js 22+
+- npm
+- Docker and Docker Compose
+- PostgreSQL, if the database is not started through Docker
+
+## Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+PORT=3000
+API_VERSION=0.0.1
+
+DB_HOST=localhost
+DB_PORT=5436
+DB_USER=nest_user
+DB_PASSWORD=nest_password
+DB_NAME=nest_db
+
+PRIVATE_KEY=replace_with_access_token_secret
+REFRESH_PRIVATE_KEY=replace_with_refresh_token_secret
 ```
 
-## Compile and run the project
+Variable reference:
+
+| Variable              | Purpose                                                          |
+| --------------------- | ---------------------------------------------------------------- |
+| `PORT`                | HTTP server port. Defaults to `3000`.                            |
+| `API_VERSION`         | Version displayed in Swagger.                                    |
+| `DB_HOST`             | PostgreSQL host.                                                 |
+| `DB_PORT`             | PostgreSQL port. `docker-compose.yml` exposes local port `5436`. |
+| `DB_USER`             | PostgreSQL user.                                                 |
+| `DB_PASSWORD`         | PostgreSQL user password.                                        |
+| `DB_NAME`             | PostgreSQL database name.                                        |
+| `PRIVATE_KEY`         | Secret used to sign access tokens.                               |
+| `REFRESH_PRIVATE_KEY` | Secret used to sign refresh tokens.                              |
+
+## Installation
+
+```bash
+npm install
+```
+
+## Start Database
+
+```bash
+docker compose up -d
+```
+
+Docker starts PostgreSQL 15 with these defaults:
+
+- database: `nest_db`
+- user: `nest_user`
+- password: `nest_password`
+- local port: `5436`
+
+## Start Application
 
 ```bash
 # development
-$ npm run start
+npm run start
 
 # watch mode
-$ npm run start:dev
+npm run start:dev
 
-# production mode
-$ npm run start:prod
+# production build + start
+npm run build
+npm run start:prod
 ```
 
-## Run tests
+After startup, the API is available at:
+
+```text
+http://localhost:3000
+```
+
+If `.env` contains a different `PORT`, use that port instead of `3000`.
+
+## Swagger
+
+Swagger UI is available at:
+
+```text
+http://localhost:3000/api
+```
+
+For protected endpoints, click `Authorize` and pass the access token in this format:
+
+```text
+Bearer <accessToken>
+```
+
+`accessToken` and `refreshToken` are returned by `POST /auth/login` and `POST /auth/registration`.
+
+## Auth Flow
+
+1. Register a user through `POST /auth/registration` or log in through `POST /auth/login`.
+2. Store `accessToken` and `refreshToken` on the client.
+3. Send `accessToken` in the `Authorization` header for protected endpoints.
+4. When the access token expires, send `refreshToken` to `POST /auth/refresh`.
+
+Current token lifetimes in code:
+
+- access token: `1m`
+- refresh token: `1d`
+
+## Main Endpoints
+
+| Method   | Path                     | Auth       | Description                                               |
+| -------- | ------------------------ | ---------- | --------------------------------------------------------- |
+| `GET`    | `/`                      | No         | API availability check.                                   |
+| `POST`   | `/auth/registration`     | No         | Register a user and issue tokens.                         |
+| `POST`   | `/auth/login`            | No         | Log in a user and issue tokens.                           |
+| `POST`   | `/auth/refresh`          | No         | Refresh a token pair by refresh token.                    |
+| `GET`    | `/order`                 | Bearer JWT | Get the authenticated user's orders.                      |
+| `POST`   | `/order/create-order`    | Bearer JWT | Create an order. `phone` and `user_id` come from the JWT. |
+| `GET`    | `/order/:id`             | No         | Get an order by ID.                                       |
+| `PATCH`  | `/order/:id`             | Bearer JWT | Update an order description or photo URL.                 |
+| `GET`    | `/users/user-order-list` | Bearer JWT | Get short information about the authenticated user.       |
+| `PATCH`  | `/users/update-user`     | Bearer JWT | Update the authenticated user's name or phone number.     |
+| `DELETE` | `/users/:id`             | Bearer JWT | Delete a user. Available only to users with role `ADMIN`. |
+
+## Request Examples
+
+Registration:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+curl -X POST http://localhost:3000/auth/registration \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Alex","phone":"+380671234567","password":"12345678"}'
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Create order:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+curl -X POST http://localhost:3000/order/create-order \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <accessToken>" \
+  -d '{"message":"Interior cleaning is needed","url_photo":"https://example.com/car.jpg"}'
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Refresh tokens:
 
-## Resources
+```bash
+curl -X POST http://localhost:3000/auth/refresh \
+  -H "Content-Type: application/json" \
+  -d '{"refreshToken":"<refreshToken>"}'
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+## Scripts
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+| Command               | Purpose                                             |
+| --------------------- | --------------------------------------------------- |
+| `npm run start`       | Start the application.                              |
+| `npm run start:dev`   | Start the application in watch mode.                |
+| `npm run start:debug` | Start the application in debug mode.                |
+| `npm run build`       | Build the project into `dist`.                      |
+| `npm run start:prod`  | Start the compiled application from `dist/main`.    |
+| `npm run lint`        | Run ESLint with auto-fix.                           |
+| `npm run format`      | Format TypeScript files with Prettier.              |
+| `npm run test`        | Run Jest unit tests.                                |
+| `npm run test:cov`    | Run unit tests with coverage.                       |
+| `npm run test:e2e`    | Run E2E tests if `test/jest-e2e.json` is available. |
 
-## Support
+## Project Structure
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```text
+src/
+  configurations/     Environment variable mapping
+  guards/             JWT and role guards
+  model/              Sequelize models: User and Order
+  module/
+    app/              Root module and health endpoint
+    auth/             Registration, login, and refresh token
+    order/            Detailing orders
+    users/            User profile and account operations
+  strategy/           Passport JWT strategy
+```
 
-## Stay in touch
+## Database
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Models:
 
-## License
+- `users`: `id`, `name`, `phone`, `hashPassword`, `role`, timestamps.
+- `orders`: `id`, `phone`, `message`, `url_photo`, `user_id`, timestamps.
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+`SequelizeModule` currently uses `synchronize: true`. This is convenient for local development, but production should use migrations and disable automatic schema synchronization.
+
+## Security Notes
+
+- Do not commit `.env` or real JWT secrets.
+- Use long and different values for `PRIVATE_KEY` and `REFRESH_PRIVATE_KEY`.
+- The access token is short-lived; the refresh token must be stored securely on the client.
+- The `ADMIN` role should be assigned only through a trusted process, not public registration.
+
+## Release Check
+
+```bash
+npm run build
+npm run test
+```
+
+If the database is started through Docker:
+
+```bash
+docker compose ps
+```
