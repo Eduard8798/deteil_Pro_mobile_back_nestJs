@@ -40,7 +40,13 @@ export class OrderService {
   async getOrdes(user_id: number) {
     return await this.orderRepository.findAll({
       where: { user_id },
-      include: { all: true },
+      attributes: ['id', 'phone', 'message', 'url_photo'],
+      include: [
+        {
+          association: 'user',
+          attributes: ['id', 'name'],
+        },
+      ],
     });
   }
 }

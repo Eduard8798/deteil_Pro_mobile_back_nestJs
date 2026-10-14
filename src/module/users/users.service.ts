@@ -35,7 +35,7 @@ export class UsersService {
     return user;
   }
 
-  async getOrderList(id: number) {
+  async getUserById(id: number) {
     const user = await this.userRepository.findOne({
       where: { id: id },
       include: { all: true },
@@ -43,6 +43,15 @@ export class UsersService {
     return {
       name: user?.name,
       // service: user?.service
+    };
+  }
+
+  async getOrderList(id: number) {
+    const user = await this.userRepository.findAll({
+      attributes: ['id', 'name', 'phone', 'role'],
+    });
+    return {
+      user
     };
   }
 

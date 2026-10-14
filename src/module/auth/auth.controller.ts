@@ -33,6 +33,7 @@ export class AuthController {
     description: 'Invalid phone number or password.',
   })
   login(@Body() loginDto: LoginDto) {
+    console.log('data-login',loginDto)
     return this.authService.login(loginDto);
   }
 

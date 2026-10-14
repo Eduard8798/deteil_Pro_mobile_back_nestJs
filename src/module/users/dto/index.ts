@@ -50,9 +50,9 @@ export class CreateUserDTO {
 
 export class LoginDto {
   @ApiProperty({
-    example: '+380671234567',
+    example: '380671234567',
     description: 'User phone number in +380XXXXXXXXX format.',
-    pattern: '^\\+380\\d{9}$',
+    pattern: '^\\380\\d{9}$',
   })
   @IsPhoneNumber('UA', { message: '+380' })
   phone: string;

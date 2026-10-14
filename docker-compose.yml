@@ -1,17 +1,25 @@
-
 services:
-  postgres:
+  backend:
+    build: .
+    ports:
+      - "3033:3033"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      PRIVATE_KEY: ${PRIVATE_KEY}
+      REFRESH_PRIVATE_KEY: ${REFRESH_PRIVATE_KEY}
+
+  db:
     image: postgres:15
-    container_name: nest_postgres
     restart: always
 
     environment:
-      POSTGRES_DB: nest_db
-      POSTGRES_USER: nest_user
-      POSTGRES_PASSWORD: nest_password
-
-    ports:
-      - "5436:5432"
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
