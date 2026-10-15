@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -13,10 +14,12 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
+  ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -47,7 +50,7 @@ export class OrderController {
     description: 'Bearer token is missing or invalid.',
   })
   async getOrdes(@Req() req) {
-    return await this.orderService.getOrdes(req.user.id);
+    return await this.orderService.getOrdes(req.user);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -121,5 +124,22 @@ export class OrderController {
     @Body() dto: PatchOrderDTO,
   ) {
     return await this.orderService.patchOrderId(dto, id);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete an order by ID' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiResponse({
+    status: 200,
+    description: 'Order deleted successfully',
+  })
+  @ApiNotFoundResponse({
+    description: 'Order not found',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal server error',
+  })
+  deleteOrder(@Param('id', ParseIntPipe) id: number) {
+    return this.orderService.deleteOrder(id);
   }
 }

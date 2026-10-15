@@ -49,7 +49,7 @@ export class UsersController {
     description: 'Bearer token is missing or invalid.',
   })
   getOrderList(@Req() req) {
-    return this.userService.getOrderList(req.user.id);
+    return this.userService.getOrderList(req.user);
   }
 
   // @Post('create-user')
