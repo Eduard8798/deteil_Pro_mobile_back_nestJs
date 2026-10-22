@@ -2,11 +2,12 @@ import {
   HttpException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { User } from '../../model/User.model';
 import { InjectModel } from '@nestjs/sequelize';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDTO, UpdateUserDTO } from './dto';
+import { CreateUserDTO, UpdateUserDTO, UpdateUserPassword } from './dto';
 
 @Injectable()
 export class UsersService {
@@ -132,6 +133,35 @@ export class UsersService {
       }
 
       throw new InternalServerErrorException('Failed to delete user');
+    }
+  }
+
+  async updatePassword(dto: UpdateUserPassword) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { phone: dto.phone },
+      });
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      const hashPassword = await bcrypt.hash(dto.password, 5);
+
+      await user.update({
+        hashPassword: hashPassword,
+      });
+
+      return await this.userRepository.findOne({
+        where: { phone: dto.phone },
+        attributes: { exclude: ['hashPassword'] },
+      });
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Failed to update user');
     }
   }
 }

@@ -22,7 +22,7 @@ import {
 import { UsersService } from './users.service';
 import {
   MessageResponseDTO,
-  UpdateUserDTO,
+  UpdateUserDTO, UpdateUserPassword,
   UserResponseDTO,
   UserSummaryDTO,
 } from './dto';
@@ -76,6 +76,24 @@ export class UsersController {
     const updateUserId = req.user.id;
 
     return this.userService.updateUser(dto, updateUserId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @Patch('update-password')
+  @ApiOperation({
+    summary: 'Update password',
+    description: 'Updates the password for the specified phone number.',
+  })
+  @ApiBody({ type: UpdateUserPassword })
+  @ApiOkResponse({
+    description: 'The password has been updated successfully.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Bearer token is missing or invalid.',
+  })
+  userUpdatePassword(@Body() dto: UpdateUserPassword) {
+    return this.userService.updatePassword(dto);
   }
 
   @UseGuards(JwtAuthGuard)

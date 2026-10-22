@@ -28,7 +28,6 @@ export class CreateUserDTO {
     description: 'User phone number in Ukrainian international format.',
     pattern: '^\\+380\\d{9}$',
   })
-  @IsPhoneNumber('UA', { message: '+380' })
   phone: string;
 
   @ApiProperty({
@@ -54,7 +53,6 @@ export class LoginDto {
     description: 'User phone number in +380XXXXXXXXX format.',
     pattern: '^\\380\\d{9}$',
   })
-  @IsPhoneNumber('UA', { message: '+380' })
   phone: string;
 
   @ApiProperty({
@@ -79,12 +77,11 @@ export class UpdateUserDTO {
   name?: string;
 
   @ApiPropertyOptional({
-    example: '+380671234567',
-    description: 'New phone number in +380XXXXXXXXX format.',
+    example: '380671234567',
+    description: 'New phone number in 380XXXXXXXXX format.',
     pattern: '^\\+380\\d{9}$',
   })
   @IsOptional()
-  @IsPhoneNumber('UA')
   phone?: string;
 }
 
@@ -101,6 +98,22 @@ export class ChangeRoleDto {
     description: 'New user role.',
   })
   role: UserRole;
+}
+export class UpdateUserPassword {
+  @ApiProperty({
+    example: '380671234567',
+    description: 'Phone number of the user.',
+  })
+  phone: string;
+
+  @ApiProperty({
+    example: 'NewSecurePassword123!',
+    description: 'New password. Minimum 4 characters.',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(4)
+  password: string;
 }
 
 export class UserResponseDTO {
