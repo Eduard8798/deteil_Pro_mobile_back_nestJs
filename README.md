@@ -71,6 +71,75 @@ npm install
 
 ## Start Database
 
+## Run with Docker
+
+You can run the backend API and PostgreSQL database using Docker Compose.
+
+### Start the Application
+
+Build the Docker image and start all services:
+
+```bash
+docker compose up -d --build
+```
+
+Check running containers:
+
+```bash
+docker compose ps
+```
+
+View application logs:
+
+```bash
+docker compose logs -f app
+```
+
+Open the API:
+
+- **API:** `http://localhost:3000`
+- **Swagger UI:** `http://localhost:3000/api`
+
+If you configure a different application port, use that port instead.
+
+### Stop the Application
+
+Stop and remove the containers:
+
+```bash
+docker compose down
+```
+
+To stop the services without removing the containers:
+
+```bash
+docker compose stop
+```
+
+### Rebuild the Application
+
+After changing the source code or Docker configuration, rebuild and restart the services:
+
+```bash
+docker compose up -d --build
+```
+
+### Database Persistence
+
+To stop the services without deleting the database volume, use:
+
+```bash
+docker compose down
+```
+
+To remove the containers and database volumes, use:
+
+```bash
+docker compose down -v
+```
+
+**Warning:** The `-v` option deletes the associated Docker volumes and may permanently remove stored database data.
+
 ```bash
 docker compose up -d
 ```
